@@ -7,7 +7,7 @@ import google.generativeai as genai
 import base64
 
 # আপনার সঠিক জেমিনি এপিআই কি
-GEMINI_API_KEY = "AQ.Ab8RN6ImNXHEnY8-5P_D03lkKwVV5ZMFBZ3jORw9v4ZpVLqoCQ"
+GEMINI_API_KEY = "AQ.Ab8RN6IPMMsM8GIxy2D516LmL_LmuLlutos15mHcdPnfO4kQDQ"
 genai.configure(api_key=GEMINI_API_KEY)
 
 # সেফটি ফিল্টার কনফিগারেশন
