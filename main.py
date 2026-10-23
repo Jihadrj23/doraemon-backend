@@ -27,7 +27,7 @@ system_instruction = (
 
 # জেমিনি মডেল ইনিশিয়ালাইজেশন
 model = genai.GenerativeModel(
-    model_name="gemini-2.5-flash",
+    model_name="gemini-1.5-flash",
     system_instruction=system_instruction,
     safety_settings=safety_settings
 )
@@ -73,7 +73,7 @@ async def chat_with_doraemon(request: ChatRequest):
 
 @app.get("/")
 def home():
-    return {"status": "Doraemon Backend with Gemini 2.5 is running successfully!"}
+    return {"status": "Doraemon Backend with Gemini 1.5 is running successfully!"}
 
 if __name__ == "__main__":
     import uvicorn
