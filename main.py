@@ -4,11 +4,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import google.generativeai as genai
 
-# আপনার নতুন এপিআই কি এখানে বসানো হলো
-GEMINI_API_KEY = "AQ.Ab8RN6IPMMsM8GIxy2D516LmL_LmuLlutos15mHcdPnfO4kQDQ"
+# রেন্ডারের এনভায়রনমেন্ট ভেরিয়েবল অথবা সরাসরি কি কনফিগার করা
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "AQ.Ab8RN6IPMMsM8GIxy2D516LmL_LmuLlutos15mHcdPnfO4kQDQ")
 genai.configure(api_key=GEMINI_API_KEY)
 
-# সকল সিকিউরিটি ও সেফটি ফিল্টার রিমুভ করার সেটিংস (BLOCK_NONE)
+# সেফটি ফিল্টার রিমুভ (BLOCK_NONE)
 safety_settings = [
     {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
     {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
@@ -16,7 +16,7 @@ safety_settings = [
     {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
 ]
 
-# ডোরেমনের কাস্টম সিস্টেম প্রম্পট (বাংলায় কথা বলার জন্য)
+# ডোরেমনের সিস্টেম প্রম্পট
 system_instruction = (
     "You are Doraemon, a friendly, helpful, and kind robotic cat from the 22nd century. "
     "Always respond in natural, friendly Bengali. You can help with studies, writing, coding, "
