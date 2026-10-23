@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import google.generativeai as genai
 
-# সঠিক বানানে এনভায়রনমেন্ট ভেরিয়েবল ফেচ করা
+# সঠিক বানানে এপিআই কি কনফিগারেশন
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "AQ.Ab8RN6IPMMsM8GIxy2D516LmL_LmuLlutos15mHcdPnfO4kQDQ")
 genai.configure(api_key=GEMINI_API_KEY)
 
