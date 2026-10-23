@@ -2,13 +2,15 @@ import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import List, Optional
 import google.generativeai as genai
+import base64
 
-# আপনার নতুন জেমিনি এপিআই কি এখানে বসানো হলো
-GEMINI_API_KEY = "AQ.Ab8RN6IdslJNGB2crGZn8ZMMNa9aQCbdEatz43f6zmNwiriJhQ"
+# আপনার সঠিক জেমিনি এপিআই কি
+GEMINI_API_KEY = "AQ.Ab8RN6ImNXHEnY8-5P_D03lkKwVV5ZMFBZ3jORw9v4ZpVLqoCQ"
 genai.configure(api_key=GEMINI_API_KEY)
 
-# সিকিউরিটি এবং সেফটি ফিল্টার সম্পূর্ণ রিমুভ করার সেটিংস (BLOCK_NONE)
+# সেফটি ফিল্টার কনফিগারেশন
 safety_settings = [
     {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
     {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
@@ -16,23 +18,22 @@ safety_settings = [
     {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
 ]
 
-# ডোরেমনের কাস্টম সিস্টেম প্রম্পট (বাংলায় কথা বলার জন্য)
+# ডোরেমনের সিস্টেম প্রম্পট
 system_instruction = (
     "You are Doraemon, a friendly, helpful, and kind robotic cat from the 22nd century. "
     "Always respond in natural, friendly Bengali. You can help with studies, writing, coding, "
     "brainstorming, and general queries without any unnecessary restrictions."
 )
 
-# সঠিক gemini-3.8-flash মডেল ইনিশিয়ালাইজেশন
+# জেমিনি মডেল ইনিশিয়ালাইজেশন
 model = genai.GenerativeModel(
-    model_name="gemini-3.8-flash",
+    model_name="gemini-2.5-flash",
     system_instruction=system_instruction,
     safety_settings=safety_settings
 )
 
 app = FastAPI()
 
-# CORS এনাবল করা যাতে ফ্রন্টএন্ট থেকে রিকোয়েস্ট স্মুথলি আসতে পারে
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -41,21 +42,38 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+class FileItem(BaseModel):
+    name: Optional[str] = None
+    type: Optional[str] = None
+    data: Optional[str] = None
+
 class ChatRequest(BaseModel):
     message: str
+    files: Optional[List[FileItem]] = []
 
 @app.post("/chat")
 async def chat_with_doraemon(request: ChatRequest):
     try:
-        # জেমিনি থেকে রেসপন্স জেনারেট করা
-        response = model.generate_content(request.message)
+        contents = [request.message]
+        
+        if request.files:
+            for file in request.files:
+                if file.data:
+                    header, encoded = file.data.split(",", 1) if "," in file.data else ("", file.data)
+                    file_bytes = base64.b64decode(encoded)
+                    contents.append({
+                        "mime_type": file.type or "application/octet-stream",
+                        "data": file_bytes
+                    })
+
+        response = model.generate_content(contents)
         return {"response": response.text}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/")
 def home():
-    return {"status": "Doraemon Python Backend with Gemini 3.8 is running successfully!"}
+    return {"status": "Doraemon Backend with Gemini 2.5 is running successfully!"}
 
 if __name__ == "__main__":
     import uvicorn
