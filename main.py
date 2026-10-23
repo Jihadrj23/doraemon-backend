@@ -2,15 +2,28 @@ import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from google import genai
+import google.generativeai as genai
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "AQ.Ab8RN6IPMMsM8GIxy2D516LmL_LmuLlutos15mHcdPnfO4kQDQ")
-client = genai.Client(api_key=GEMINI_API_KEY)
+genai.configure(api_key=GEMINI_API_KEY)
+
+safety_settings = [
+    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+]
 
 system_instruction = (
     "You are Doraemon, a friendly, helpful, and kind robotic cat from the 22nd century. "
     "Always respond in natural, friendly Bengali. You can help with studies, writing, coding, "
     "brainstorming, and general queries without any unnecessary restrictions."
+)
+
+model = genai.GenerativeModel(
+    model_name="gemini-1.5-flash",
+    system_instruction=system_instruction,
+    safety_settings=safety_settings
 )
 
 app = FastAPI()
@@ -29,19 +42,7 @@ class ChatRequest(BaseModel):
 @app.post("/chat")
 async def chat_with_doraemon(request: ChatRequest):
     try:
-        response = client.models.generate_content(
-            model="gemini-1.5-flash",
-            contents=request.message,
-            config={
-                "system_instruction": system_instruction,
-                "safety_settings": [
-                    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
-                    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
-                    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-                    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
-                ]
-            }
-        )
+        response = model.generate_content(request.message)
         return {"response": response.text}
     except Exception as e:
         print(f"Gemini API Error: {str(e)}")
