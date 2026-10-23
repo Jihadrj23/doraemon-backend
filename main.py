@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import google.generativeai as genai
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "AQ.Ab8RN6IPMMsM8GIxy2D516LmL_LmuLlutos15mHcdPnfO4kQDQ")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "AQ.Ab8RN6KvQcx2ntlTzVZQW9YmxJOyolzSGz5EuUdzh1EBOW8aJg")
 genai.configure(api_key=GEMINI_API_KEY)
 
 safety_settings = [
