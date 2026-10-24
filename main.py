@@ -83,7 +83,7 @@ async def chat_with_doraemon(request: ChatRequest):
 
         # Generate response
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3.8-flash",
             contents=request.message,
             config={
                 "system_instruction": system_instruction,
