@@ -4,12 +4,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import httpx
 
-# সেফটি সেটিংস অপরিবর্তিত রাখা হয়েছে
+# আপনার সিকিউরিটি/সেফটি সেটিংস (সব রেস্ট্রিকশন বা ব্লক বন্ধ করা আছে)
 safety_settings = [
     {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
     {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
     {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+    {"category": "HARM_CATEGORY_DANGERO_CONTENT", "threshold": "BLOCK_NONE"},
 ]
 
 system_instruction = (
@@ -34,9 +34,9 @@ class ChatRequest(BaseModel):
 @app.post("/chat")
 async def chat_with_doraemon(request: ChatRequest):
     try:
+        # আপনার এপিআই কি ব্যাকআপসহ সেট করা
         api_key = os.environ.get("GEMINI_API_KEY", "AQ.Ab8RN6KvQcx2ntlTzVZQW9YmxJOyolzSGz5EuUdzh1EBOW8aJg").strip()
         
-        # জেমিনির সঠিক ও লেটেস্ট মডেল এবং সিস্টেম ইনস্ট্রাকশনসহ নিরাপদ HTTP রিকোয়েস্ট
         url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
         
         payload = {
@@ -47,7 +47,8 @@ async def chat_with_doraemon(request: ChatRequest):
             ],
             "systemInstruction": {
                 "parts": [{"text": system_instruction}]
-            }
+            },
+            "safetySettings": safety_settings
         }
         
         headers = {
@@ -58,10 +59,9 @@ async def chat_with_doraemon(request: ChatRequest):
         async with httpx.AsyncClient(timeout=60.0) as client:
             response = await client.post(url, json=payload, headers=headers)
             
-            # যদি গুগল থেকে কোনো এরর আসে তবে সেটি ট্র্যাক করার জন্য
             if response.status_code != 200:
-                print(f"Gemini API Error Response: {response.text}")
-                raise HTTPException(status_code=response.status_code, detail=f"Gemini Error: {response.text}")
+                print(f"Google API Error: {response.text}")
+                raise HTTPException(status_code=response.status_code, detail=f"Google API Error: {response.text}")
                 
             res_data = response.json()
             reply_text = res_data["candidates"][0]["content"]["parts"][0]["text"]
